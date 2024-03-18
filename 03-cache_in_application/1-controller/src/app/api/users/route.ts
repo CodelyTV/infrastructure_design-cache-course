@@ -9,7 +9,7 @@ import { MariaDBConnection } from "../../../contexts/shared/infrastructure/Maria
 
 const searcher = new UsersByCriteriaSearcher(new MySqlUserRepository(new MariaDBConnection()));
 
-type CachedResponse = {
+type CachedData = {
 	[key: string]: {
 		users: UserPrimitives[];
 		createdAt: number;
@@ -18,7 +18,7 @@ type CachedResponse = {
 
 const cacheTtlInSeconds = 5;
 
-const cachedResponse: CachedResponse = {};
+const cachedData: CachedData = {};
 
 function generateCacheKey(
 	filters: FiltersPrimitives[],
@@ -47,12 +47,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	);
 
 	if (
-		cachedResponse[cacheKey] &&
-		Date.now() - cachedResponse[cacheKey].createdAt < cacheTtlInSeconds * 1000
+		cachedData[cacheKey] &&
+		Date.now() - cachedData[cacheKey].createdAt < cacheTtlInSeconds * 1000
 	) {
 		console.log("→ Devolviendo de caché");
 
-		return NextResponse.json(cachedResponse[cacheKey].users);
+		return NextResponse.json(cachedData[cacheKey].users);
 	}
 
 	const users = await searcher.search(
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	const response = NextResponse.json(primitiveUsers);
 
 	// eslint-disable-next-line require-atomic-updates
-	cachedResponse[cacheKey] = {
+	cachedData[cacheKey] = {
 		users: primitiveUsers,
 		createdAt: Date.now(),
 	};
