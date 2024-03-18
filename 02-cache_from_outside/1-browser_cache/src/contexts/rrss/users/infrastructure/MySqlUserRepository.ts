@@ -51,6 +51,10 @@ export class MySqlUserRepository implements UserRepository {
 	}
 
 	async matching(criteria: Criteria): Promise<User[]> {
+		await new Promise((resolve) => {
+			setTimeout(resolve, 3000);
+		});
+
 		const converter = new CriteriaToSqlConverter();
 
 		const result = await this.connection.searchAll<DatabaseUser>(
