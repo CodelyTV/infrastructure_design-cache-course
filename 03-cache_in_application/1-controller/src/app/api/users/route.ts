@@ -1,11 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { UsersByCriteriaSearcher } from "../../../contexts/rrss/users/application/search_by_criteria/UsersByCriteriaSearcher";
+import { UserPrimitives } from "../../../contexts/rrss/users/domain/User";
 import { MySqlUserRepository } from "../../../contexts/rrss/users/infrastructure/MySqlUserRepository";
+import { FiltersPrimitives } from "../../../contexts/shared/domain/criteria/Filter";
 import { SearchParamsCriteriaFiltersParser } from "../../../contexts/shared/infrastructure/criteria/SearchParamsCriteriaFiltersParser";
 import { MariaDBConnection } from "../../../contexts/shared/infrastructure/MariaDBConnection";
 
 const searcher = new UsersByCriteriaSearcher(new MySqlUserRepository(new MariaDBConnection()));
+
+type CachedResponse = {
+	[key: string]: {
+		users: UserPrimitives[];
+		createdAt: number;
+	};
+};
+
+const cacheTtlInSeconds = 5;
+
+const cachedResponse: CachedResponse = {};
+
+function generateCacheKey(
+	filters: FiltersPrimitives[],
+	orderBy: string | null,
+	orderType: string | null,
+	pageSize: number | null,
+	pageNumber: number | null,
+): string {
+	return `${JSON.stringify(filters)}-${orderBy}-${orderType}-${pageSize}-${pageNumber}`;
+}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
 	// eslint-disable-next-line no-console
@@ -15,6 +38,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 	const filters = SearchParamsCriteriaFiltersParser.parse(searchParams);
 
+	const cacheKey = generateCacheKey(
+		filters,
+		searchParams.get("orderBy"),
+		searchParams.get("order"),
+		searchParams.has("pageSize") ? parseInt(searchParams.get("pageSize") as string, 10) : null,
+		searchParams.has("pageNumber") ? parseInt(searchParams.get("pageNumber") as string, 10) : null,
+	);
+
+	if (
+		cachedResponse[cacheKey] &&
+		Date.now() - cachedResponse[cacheKey].createdAt < cacheTtlInSeconds * 1000
+	) {
+		console.log("→ Devolviendo de caché");
+
+		return NextResponse.json(cachedResponse[cacheKey].users);
+	}
+
 	const users = await searcher.search(
 		filters,
 		searchParams.get("orderBy"),
@@ -23,8 +63,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		searchParams.has("pageNumber") ? parseInt(searchParams.get("pageNumber") as string, 10) : null,
 	);
 
-	const response = NextResponse.json(users.map((user) => user.toPrimitives()));
-	response.headers.set("Cache-Control", "max-age=3600, s-maxage=6000");
+	const primitiveUsers = users.map((user) => user.toPrimitives());
+	const response = NextResponse.json(primitiveUsers);
+
+	// eslint-disable-next-line require-atomic-updates
+	cachedResponse[cacheKey] = {
+		users: primitiveUsers,
+		createdAt: Date.now(),
+	};
+
+	console.log("→ Devolviendo de base de datos");
 
 	return response;
 }
