@@ -5,11 +5,14 @@ import styles from "./page.module.css";
 export default function Home() {
 	const fetchUsers = async () => {
 		const startTime = performance.now();
-		await fetch("/api/users");
+		const users = await fetch("/api/users");
+		const data = await users.json();
+
 		const endTime = performance.now();
 
 		// eslint-disable-next-line no-console
 		console.log(`La petición a /api/users ha tardado ${endTime - startTime} milisegundos`);
+		console.log(`Response:`, data);
 	};
 
 	return (
