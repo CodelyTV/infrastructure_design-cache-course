@@ -7,9 +7,7 @@ import {
 	RedisScripts,
 } from "redis";
 
-import { Cache } from "../domain/Cache";
-
-export class RedisCache implements Cache {
+export class RedisClient {
 	private readonly client: Promise<
 		RedisClientType<RedisDefaultModules & RedisModules, RedisFunctions, RedisScripts>
 	>;
@@ -22,7 +20,8 @@ export class RedisCache implements Cache {
 		return (await (await this.client).exists(key)) === 1;
 	}
 
-	public async get<T>(key: string, deserializer: (parsedJson: unknown) => T): Promise<T | null> {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	public async get<T>(key: string, deserializer: (parsedJson: any) => T): Promise<T | null> {
 		const value = await (await this.client).get(key);
 
 		if (value !== null) {
@@ -45,5 +44,9 @@ export class RedisCache implements Cache {
 		const serializedValue = JSON.stringify(value);
 
 		await (await this.client).set(key, serializedValue, { EX: ttlInSeconds });
+	}
+
+	async flushAll(): Promise<void> {
+		await (await this.client).flushAll();
 	}
 }

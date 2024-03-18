@@ -4,10 +4,10 @@ import { UsersByCriteriaSearcher } from "../../../contexts/rrss/users/applicatio
 import { MySqlUserRepository } from "../../../contexts/rrss/users/infrastructure/MySqlUserRepository";
 import { SearchParamsCriteriaFiltersParser } from "../../../contexts/shared/infrastructure/criteria/SearchParamsCriteriaFiltersParser";
 import { MariaDBConnection } from "../../../contexts/shared/infrastructure/MariaDBConnection";
-import { RedisCache } from "../../../contexts/shared/infrastructure/RedisCache";
+import { RedisClient } from "../../../contexts/shared/infrastructure/RedisClient";
 
 const searcher = new UsersByCriteriaSearcher(
-	new MySqlUserRepository(new MariaDBConnection(), new RedisCache()),
+	new MySqlUserRepository(new MariaDBConnection(), new RedisClient()),
 );
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
