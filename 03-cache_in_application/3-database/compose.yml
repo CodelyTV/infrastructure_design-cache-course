@@ -1,5 +1,5 @@
 services:
-  03_2_cache_mariadb:
+  03_3_cache_mariadb:
     image: mariadb:11
     restart: always
     environment:
@@ -14,7 +14,7 @@ services:
       - db_data:/var/lib/mysql
       - ./databases/ecommerce.sql:/docker-entrypoint-initdb.d/init.sql
 
-  03_2_cache_redis:
+  03_3_cache_redis:
     image: redis:7.2
     ports:
       - "6379:6379"

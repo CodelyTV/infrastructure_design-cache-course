@@ -7,8 +7,7 @@ import { MariaDBConnection } from "../../../contexts/shared/infrastructure/Maria
 import { RedisCache } from "../../../contexts/shared/infrastructure/RedisCache";
 
 const searcher = new UsersByCriteriaSearcher(
-	new MySqlUserRepository(new MariaDBConnection()),
-	new RedisCache(),
+	new MySqlUserRepository(new MariaDBConnection(), new RedisCache()),
 );
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
