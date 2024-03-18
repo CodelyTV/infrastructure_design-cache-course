@@ -21,7 +21,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	);
 
 	const response = NextResponse.json(users.map((user) => user.toPrimitives()));
-	response.headers.set("Cache-Control", "public, max-age=3600");
+	response.headers.set("Cache-Control", "max-age=3600");
 
 	return response;
 }
