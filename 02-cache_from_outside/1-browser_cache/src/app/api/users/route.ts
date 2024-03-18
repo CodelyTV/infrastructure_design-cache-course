@@ -20,5 +20,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		searchParams.has("pageNumber") ? parseInt(searchParams.get("pageNumber") as string, 10) : null,
 	);
 
-	return NextResponse.json(users.map((user) => user.toPrimitives()));
+	const response = NextResponse.json(users.map((user) => user.toPrimitives()));
+	response.headers.set("Cache-Control", "public, max-age=3600");
+
+	return response;
 }
