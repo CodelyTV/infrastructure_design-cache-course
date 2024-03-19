@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 export default function Home() {
 	const fetchUsers = async () => {
 		const startTime = performance.now();
-		await fetch("/api/users");
+		await fetch("http://localhost:80/api/users");
 		const endTime = performance.now();
 
 		// eslint-disable-next-line no-console
