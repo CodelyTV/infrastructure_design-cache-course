@@ -55,13 +55,13 @@ export class MySqlUserRepository implements UserRepository {
 	}
 
 	async matching(criteria: Criteria): Promise<User[]> {
-		await new Promise((resolve) => {
-			setTimeout(resolve, 3000);
-		});
-
 		if (await this.cache.has(criteria.toString())) {
 			return await this.findInCache(criteria);
 		}
+
+		await new Promise((resolve) => {
+			setTimeout(resolve, 3000);
+		});
 
 		const converter = new CriteriaToSqlConverter();
 
