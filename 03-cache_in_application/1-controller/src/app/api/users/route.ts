@@ -1,3 +1,4 @@
+/* eslint-disable no-console,@typescript-eslint/no-unnecessary-condition,require-atomic-updates */
 import { NextRequest, NextResponse } from "next/server";
 
 import { UsersByCriteriaSearcher } from "../../../contexts/rrss/users/application/search_by_criteria/UsersByCriteriaSearcher";
@@ -31,7 +32,6 @@ function generateCacheKey(
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-	// eslint-disable-next-line no-console
 	console.log("Pidiendo /api/users");
 
 	const { searchParams } = new URL(request.url);
@@ -64,9 +64,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	);
 
 	const primitiveUsers = users.map((user) => user.toPrimitives());
-	const response = NextResponse.json(primitiveUsers);
 
-	// eslint-disable-next-line require-atomic-updates
 	cachedData[cacheKey] = {
 		users: primitiveUsers,
 		createdAt: Date.now(),
@@ -74,5 +72,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 	console.log("→ Devolviendo de base de datos");
 
-	return response;
+	return NextResponse.json(primitiveUsers);
 }
