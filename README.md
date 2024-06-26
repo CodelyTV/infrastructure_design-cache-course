@@ -23,5 +23,5 @@
 
 <p align="center">
   <a href="https://github.com/CodelyTV/infrastructure_design-cache-course/stargazers">Stars are welcome 😊</a><br><br>
-  Course (Spanish): <a href="https://pro.codely.com/library/diseno-de-infraestructura-cache-225552">{Diseño de infraestructura: Caché</a>
+  Course (Spanish): <a href="https://pro.codely.com/library/diseno-de-infraestructura-cache-225552">Diseño de infraestructura: Caché</a>
 </p>
